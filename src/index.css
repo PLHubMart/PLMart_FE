@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #8B1E22;
+  --color-brand-light: #FDFBF7;
+  --color-accent: #E67E22;
+  --color-accent-hover: #D35400;
+  --color-text-main: #2C3E50;
+  
+  --font-roboto: "Roboto", sans-serif;
+  --font-inter: "Inter", sans-serif;
+
+  --animate-slow-zoom: slow-zoom 20s infinite alternate;
+  --animate-spin-slow: spin-slow 8s linear infinite;
+
+  @keyframes slow-zoom {
+    from { transform: scale(1); }
+    to { transform: scale(1.1); }
+  }
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+}
+
+.clip-wave {
+  clip-path: ellipse(80% 50% at 50% 100%);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #8B1E22;
+  border-radius: 10px;
+}
+
+:root {
+  font-family: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--color-text-main);
+  background-color: var(--color-brand-light);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+}
+
+button,
+a,
+input[type="button"],
+input[type="submit"],
+input[type="file"],
+select,
+[role="button"] {
+  cursor: pointer;
+}
+
