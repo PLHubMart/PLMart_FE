@@ -20,6 +20,57 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const ProductSkeleton = ({ viewMode }) => {
+  if (viewMode === 'grid') {
+    return (
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden p-3 flex flex-col justify-between h-full animate-pulse">
+        <div>
+          <div className="relative aspect-square rounded-xl bg-gray-200 mb-4"></div>
+          <div className="h-3 bg-brand/15 rounded w-16 mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-full mb-1.5"></div>
+          <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+        </div>
+        <div className="space-y-3 mt-2">
+          <div className="flex items-center gap-2">
+            <div className="h-5 bg-brand/20 rounded w-20"></div>
+            <div className="h-3 bg-gray-100 rounded w-12"></div>
+          </div>
+          <div className="flex items-center justify-between pb-1">
+            <div className="h-3 bg-gray-100 rounded w-10"></div>
+            <div className="h-3 bg-gray-100 rounded w-16"></div>
+          </div>
+          <div className="h-9 bg-gray-100 rounded-xl w-full"></div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 p-4 flex flex-row gap-5 items-center w-full animate-pulse">
+      <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gray-200 rounded-xl shrink-0"></div>
+      <div className="flex-1 space-y-3">
+        <div>
+          <div className="h-3 bg-brand/15 rounded w-16 mb-1.5"></div>
+          <div className="h-5 bg-gray-200 rounded w-3/4 mb-1.5"></div>
+          <div className="hidden sm:block h-3 bg-gray-100 rounded w-5/6 mb-1"></div>
+          <div className="hidden sm:block h-3 bg-gray-100 rounded w-2/3"></div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-3 bg-gray-100 rounded w-12"></div>
+          <div className="h-3 bg-gray-100 rounded w-8"></div>
+        </div>
+        <div className="flex items-end justify-between gap-2 mt-4 sm:mt-2">
+          <div className="space-y-1">
+            <div className="h-5 bg-brand/20 rounded w-24"></div>
+            <div className="h-3 bg-gray-100 rounded w-16"></div>
+          </div>
+          <div className="h-9 bg-brand rounded-xl w-10 sm:w-32"></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Market = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -42,6 +93,7 @@ const Market = () => {
   // Phân trang
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10; 
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
 
   const allProducts = [
     { id: 1, name: 'Nệm Cao Su Non Thắng Lợi Cao Cấp Cực Êm', category: 'NỆM & TOPPER', sub: 'Nệm Cao Su Non', price: 1250000, oldPrice: 1500000, rating: 5, reviews: 128, image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=500&q=80', isSale: true, desc: 'Chất liệu cao su non nguyên khối nâng đỡ cột sống tối đa, thoáng khí 2 mặt mang lại giấc ngủ sâu.', stock: 'Còn hàng' },
@@ -125,6 +177,14 @@ const Market = () => {
     setSelectedSub(initialSub || null);
     setCurrentPage(1);
   }, [location.search, initialCategory, initialSub]);
+
+  useEffect(() => {
+    setIsLoadingProducts(true);
+    const timer = setTimeout(() => {
+      setIsLoadingProducts(false);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [selectedCategory, selectedSub, priceRange, sortBy, initialSearch, initialFilter]);
 
   return (
     <div className="min-h-screen bg-gray-50 font-inter text-gray-700 flex flex-col text-sm">
@@ -294,7 +354,13 @@ const Market = () => {
             </div>
 
             {/* DANH SÁCH SẢN PHẨM HOẠT ĐỘNG CHUẨN XÁC THEO VIEW MODE */}
-            {paginatedProducts.length > 0 ? (
+            {isLoadingProducts ? (
+              <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 animate-in fade-in duration-200" : "space-y-3.5 animate-in fade-in duration-200"}>
+                {[...Array(8)].map((_, idx) => (
+                  <ProductSkeleton key={idx} viewMode={viewMode} />
+                ))}
+              </div>
+            ) : paginatedProducts.length > 0 ? (
               <div className="space-y-6">
                 {/* Thiết lập class Grid linh hoạt (Grid: 4 cột trên XL PC, List: Flex dọc block dài) */}
                 <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4" : "space-y-3.5"}>

@@ -36,5 +36,20 @@ export const userApi = {
       throw new Error(error.detail || 'Cập nhật ảnh đại diện thất bại');
     }
     return await response.json();
+  },
+
+  changePassword: async (data) => {
+    const response = await request('/user/change-password', {
+      method: 'POST',
+      body: JSON.stringify({
+        oldPassword: data.oldPassword,
+        newPassword: data.newPassword
+      })
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Thay đổi mật khẩu thất bại');
+    }
+    return await response.json();
   }
 };

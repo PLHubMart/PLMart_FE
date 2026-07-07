@@ -5,10 +5,12 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { mockProductDetail } from '../data/productDetails';
 import { motion } from 'framer-motion';
+import { useToast } from '../hooks/useToast';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
   const [selectedImage, setSelectedImage] = useState(0);
@@ -19,6 +21,47 @@ const ProductDetail = () => {
 
   const handleDecrease = () => quantity > 1 && setQuantity(quantity - 1);
   const handleIncrease = () => setQuantity(quantity + 1);
+
+  const handleAddToCart = (quiet = false) => {
+    try {
+      const existingCart = JSON.parse(localStorage.getItem('plmart_cart')) || [];
+      const itemIndex = existingCart.findIndex(item => item.id === product.id || item.id === parseInt(id));
+      
+      const cartItem = {
+        id: product.id || parseInt(id) || 1,
+        name: product.name,
+        price: product.price,
+        quantity: quantity,
+        image: product.images[0] || 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=500&q=80',
+        category: product.category,
+        variant: product.specs[0] ? `${product.specs[0].label}: ${product.specs[0].value}` : '',
+        stock: 10
+      };
+
+      if (itemIndex > -1) {
+        existingCart[itemIndex].quantity += quantity;
+      } else {
+        existingCart.push(cartItem);
+      }
+
+      localStorage.setItem('plmart_cart', JSON.stringify(existingCart));
+      window.dispatchEvent(new Event('cartUpdated'));
+      
+      if (!quiet) {
+        addToast(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`, 'success');
+      }
+    } catch (e) {
+      console.error(e);
+      if (!quiet) {
+        addToast('Có lỗi xảy ra khi thêm vào giỏ hàng', 'error');
+      }
+    }
+  };
+
+  const handleBuyNow = () => {
+    handleAddToCart(true);
+    navigate('/checkout');
+  };
 
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
@@ -181,12 +224,15 @@ const ProductDetail = () => {
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <button className="flex-1 bg-white border-2 border-gray-900 text-gray-900 font-black py-4 px-8 rounded-2xl hover:bg-gray-900 hover:text-white transition-all duration-300 flex items-center justify-center gap-3 uppercase text-sm tracking-widest shadow-lg active:scale-95">
+                    <button 
+                      onClick={() => handleAddToCart(false)}
+                      className="flex-1 bg-white border-2 border-gray-900 text-gray-900 font-black py-4 px-8 rounded-2xl hover:bg-gray-900 hover:text-white transition-all duration-300 flex items-center justify-center gap-3 uppercase text-sm tracking-widest shadow-lg active:scale-95"
+                    >
                       <ShoppingCart className="w-5 h-5" />
                       Thêm giỏ hàng
                     </button>
                     <button 
-                      onClick={() => navigate('/checkout')}
+                      onClick={handleBuyNow}
                       className="flex-1 bg-red-600 text-white font-black py-4 px-8 rounded-2xl hover:bg-red-700 transition-all duration-300 shadow-xl shadow-red-200 uppercase text-sm tracking-widest active:scale-95"
                     >
                       Mua ngay

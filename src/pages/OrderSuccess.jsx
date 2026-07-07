@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Package, ArrowRight, ShoppingBag, Home } from 'lucide-react';
+import { CheckCircle2, Package, ArrowRight, ShoppingBag, Home, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -12,7 +12,16 @@ const OrderSuccess = () => {
   return (
     <div className="min-h-screen bg-gray-50 font-inter">
       <Header />
-      <main className="max-w-3xl mx-auto px-4 py-20 lg:py-32 flex flex-col items-center text-center">
+      <main className="max-w-3xl mx-auto px-4 py-12 lg:py-16 flex flex-col items-center text-center">
+        {/* Sleek Stepper Progress Indicator */}
+        <div className="max-w-xl mx-auto mb-10 flex justify-center items-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-200/60 pb-5 w-full">
+          <span className="text-brand flex items-center gap-1.5"><span className="w-5 h-5 rounded-full bg-brand text-white flex items-center justify-center font-black">1</span> Giỏ hàng</span>
+          <ChevronRight size={12} className="text-brand" />
+          <span className="text-brand flex items-center gap-1.5"><span className="w-5 h-5 rounded-full bg-brand text-white flex items-center justify-center font-black">2</span> Thanh toán</span>
+          <ChevronRight size={12} className="text-brand" />
+          <span className="text-brand flex items-center gap-1.5"><span className="w-5 h-5 rounded-full bg-brand text-white flex items-center justify-center font-black">3</span> Hoàn tất</span>
+        </div>
+
         <motion.div 
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}

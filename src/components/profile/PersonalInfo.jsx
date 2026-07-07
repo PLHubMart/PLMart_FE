@@ -26,6 +26,38 @@ const PersonalInfo = () => {
   
   const [isEditing, setIsEditing] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [changePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (passwordData.newPassword.length < 8) {
+      addToast('Mật khẩu mới phải dài tối thiểu 8 ký tự', 'error');
+      return;
+    }
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      addToast('Xác nhận mật khẩu mới không trùng khớp', 'error');
+      return;
+    }
+
+    try {
+      addToast('Đang tiến hành đổi mật khẩu...', 'info', 2000);
+      const res = await userApi.changePassword({
+        oldPassword: passwordData.oldPassword,
+        newPassword: passwordData.newPassword
+      });
+      addToast(res.message || 'Thay đổi mật khẩu thành công!', 'success');
+      setChangePasswordModalOpen(false);
+      setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (error) {
+      console.error(error);
+      addToast(error.message || 'Thay đổi mật khẩu thất bại!', 'error');
+    }
+  };
 
   const [tempUser, setTempUser] = useState({
     fullName: '',
@@ -260,10 +292,98 @@ const PersonalInfo = () => {
               <div className="w-10 h-10 rounded-xl bg-brand-light flex items-center justify-center text-brand"><Lock size={20} /></div>
               <div><p className="text-sm font-bold text-gray-900 leading-none">Bảo mật</p><p className="text-xs text-gray-400 mt-1">Đổi mật khẩu định kỳ để an toàn</p></div>
             </div>
-            <button className="text-xs font-black text-brand hover:underline uppercase tracking-widest">Thay đổi ngay</button>
+            <button 
+              onClick={() => setChangePasswordModalOpen(true)}
+              className="text-xs font-black text-brand hover:underline uppercase tracking-widest"
+            >
+              Thay đổi ngay
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Change Password Modal */}
+      {changePasswordModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            {/* Modal Header */}
+            <div className="px-8 py-5 bg-brand text-white flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Lock size={22} />
+                <h2 className="text-base font-black uppercase tracking-wider">Đổi mật khẩu</h2>
+              </div>
+              <button 
+                type="button"
+                onClick={() => {
+                  setChangePasswordModalOpen(false);
+                  setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+                }}
+                className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
+              >
+                <X size={20} className="text-white" />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleChangePassword} className="p-8 space-y-4 text-xs">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Mật khẩu hiện tại</label>
+                <input 
+                  required
+                  type="password"
+                  value={passwordData.oldPassword}
+                  onChange={(e) => setPasswordData({...passwordData, oldPassword: e.target.value})}
+                  placeholder="Nhập mật khẩu hiện tại"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:border-brand font-bold text-sm"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Mật khẩu mới</label>
+                <input 
+                  required
+                  type="password"
+                  value={passwordData.newPassword}
+                  onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
+                  placeholder="Nhập mật khẩu mới (tối thiểu 8 ký tự)"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:border-brand font-bold text-sm"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Xác nhận mật khẩu mới</label>
+                <input 
+                  required
+                  type="password"
+                  value={passwordData.confirmPassword}
+                  onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
+                  placeholder="Xác nhận lại mật khẩu mới"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:border-brand font-bold text-sm"
+                />
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setChangePasswordModalOpen(false);
+                    setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+                  }}
+                  className="flex-1 py-3.5 bg-gray-100 text-gray-600 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-gray-200 transition-all"
+                >
+                  Hủy bỏ
+                </button>
+                <button 
+                  type="submit"
+                  className="flex-1 py-3.5 bg-accent text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-accent-hover transition-all shadow-xl shadow-accent/20"
+                >
+                  Xác nhận đổi
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

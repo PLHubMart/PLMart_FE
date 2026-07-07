@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   ShoppingCart, 
@@ -68,7 +68,28 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [cartCount, setCartCount] = useState(0);
   const navigate = useNavigate();
+
+  const updateCartCount = () => {
+    try {
+      const items = JSON.parse(localStorage.getItem('plmart_cart')) || [];
+      const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
+      setCartCount(totalCount);
+    } catch {
+      setCartCount(0);
+    }
+  };
+
+  useEffect(() => {
+    updateCartCount();
+    window.addEventListener('cartUpdated', updateCartCount);
+    window.addEventListener('storage', updateCartCount);
+    return () => {
+      window.removeEventListener('cartUpdated', updateCartCount);
+      window.removeEventListener('storage', updateCartCount);
+    };
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -149,7 +170,11 @@ const Header = () => {
               <Link to="/cart" className="flex flex-col items-center text-gray-500 hover:text-brand transition-colors group relative">
                 <div className="relative">
                   <ShoppingCart size={22} className="group-hover:scale-110 transition-transform" />
-                  <span className="absolute -top-2 -right-2 h-4 w-4 bg-accent text-white text-[9px] font-black flex items-center justify-center rounded-full shadow-sm ring-2 ring-white">2</span>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 h-4 w-4 bg-accent text-white text-[9px] font-black flex items-center justify-center rounded-full shadow-sm ring-2 ring-white animate-in zoom-in duration-200">
+                      {cartCount}
+                    </span>
+                  )}
                 </div>
                 <span className="text-[9px] font-black uppercase mt-1 hidden sm:block tracking-tighter">Giỏ hàng</span>
               </Link>
